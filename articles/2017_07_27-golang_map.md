@@ -1,4 +1,4 @@
-# Golang Map实现
+# Golang Map 源码阅读与分析
 
 我们知道哈希表解决冲突一般要么是开放定址法，要么是再哈希法。Golang采用的是
 第一种，但是实现上和教科书式的实现方式不同。这也是很有趣的一个东西，就像之前
@@ -141,7 +141,11 @@ func mapaccess1(t *maptype, h *hmap, key unsafe.Pointer) unsafe.Pointer {
 }
 ```
 
-还有一个 `mapaccess2` 不知道是干啥的。`mapaccessK` 说是给iter用的。
+~~还有一个 `mapaccess2` 不知道是干啥的。~~
+> 2019.05.13 更新: 据网友 [@rongfeixu](https://disqus.com/by/rongfeixu/) 回复，`mapaccess1` 用于 `v := map["bla"]`
+> `mapaccess2` 用于 `v, ok := map["bla"]` 这种形式。
+
+`mapaccessK` 说是给iter用的。
 接下来看看赋值操作，赋值操作其实就是先查找，找到了覆盖，没找到新建：
 
 ```go

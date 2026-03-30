@@ -1,0 +1,23 @@
+- hosts: blog
+  tasks:
+    - name: generate README.md
+      local_action: shell python gen_catalog.py
+
+    - name: commit and push to github
+      local_action: shell git add . && git commit -m "sync at `date`" && git push || true
+
+    - name: compile blog binary
+      local_action: shell CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o blog
+
+    - name: sync code & articles
+      synchronize:
+        src: ./
+        dest: /data/blog/code/
+        recursive: yes
+        delete: yes
+        rsync_opts:
+          - "--chown=www-data"
+          - "--exclude=.git"
+
+    - name: reload blog process
+      shell: supervisorctl update && supervisorctl restart blog

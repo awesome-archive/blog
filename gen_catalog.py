@@ -1,27 +1,10 @@
 # coding: utf-8
 
-import os
-import re
-import operator
+from utils import load_mds
 
 
-def gen_catalog(posts_dir, output_file, headers, footers, relative_path):
-    # e.g. 2014_06_17-use_cron.rst, 2014_06_17-use_cron.md
-    r = re.compile(r"(\d{4}_\d{2}_\d{2})-.+\..+")
-
-    catalog = []
-    for filename in os.listdir(posts_dir):
-        result = r.match(filename)
-        if result:
-            date = result.group(1).replace("_", "/")
-            with open(os.path.join(posts_dir, filename)) as f:
-                title = f.readline().strip()
-                if filename.split(".")[-1] == "md":
-                    title = title.lstrip("# ")
-            catalog.append((title, date, filename))
-
-    # sort by filename, in a reverse order
-    catalog = sorted(catalog, key=operator.itemgetter(2), reverse=True)
+def gen_catalog(posts_dir, output_file, headers, footers):
+    articles = load_mds("./articles")
 
     with open(output_file, "w+") as f:
         # clear all the contents in file
@@ -32,13 +15,12 @@ def gen_catalog(posts_dir, output_file, headers, footers, relative_path):
             f.write("\n\n")
 
         # write catalog
-        for item in catalog:
-            title, date, filename = item
+        for title, date, filename, path in articles:
             f.write(
-                "- {date} - [{title}]({relative_path}/{filename})\n".format(
-                    date=date,
+                "- {date} - [{title}](https://jiajunhuang.com/{path}/{filename}.html)\n".format(
+                    date=date.strftime("%Y/%m/%d"),
                     title=title,
-                    relative_path=relative_path,
+                    path=path,
                     filename=filename,
                 )
             )
@@ -53,7 +35,7 @@ if __name__ == "__main__":
     readme_headers = [
         "# Jiajun's Blog",
         "会当凌绝顶，一览众山小。",
-        "- [关于我](articles/aboutme.md)",
+        "- [关于我](https://jiajunhuang.com/aboutme)",
         "## 目录",
     ]
     readme_footers = [
@@ -66,22 +48,4 @@ if __name__ == "__main__":
         "./README.md",
         readme_headers,
         readme_footers,
-        "articles",
-    )
-
-    # leetcode.md
-    leetcode_headers = [
-        "# Leetcode in Golang, Python",
-    ]
-    leetcode_footers = [
-        "\n",
-        "--------------------------------------------",
-        "禁止转载",
-    ]
-    gen_catalog(
-        "leetcode",
-        "./leetcode/README.md",
-        leetcode_headers,
-        leetcode_footers,
-        "."
     )

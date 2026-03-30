@@ -1,6 +1,7 @@
-_site
-.sass-cache
-secret.txt
-__pycache__
-*.py[co]
-tags
+__pycache__/
+*.pyc
+*.retry
+/asserts.go
+/blog
+/tags
+.env
